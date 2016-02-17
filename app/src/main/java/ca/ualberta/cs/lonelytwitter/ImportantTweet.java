@@ -5,17 +5,17 @@ import java.util.Date;
 /**
  * Created by romansky on 1/12/16.
  */
-public class ImportantTweet extends Tweet implements Tweetable {
+public class ImportantTweet extends Tweet {
     @Override
     public Boolean isImportant() {
         return Boolean.TRUE;
     }
 
-    public ImportantTweet(Date date, String message) {
+    public ImportantTweet(Date date, String message) throws TweetTooLongException {
         super(date, message);
     }
 
-    public ImportantTweet(String message) {
+    public ImportantTweet(String message) throws TweetTooLongException {
         super(message);
     }
 

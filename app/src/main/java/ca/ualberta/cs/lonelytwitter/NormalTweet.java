@@ -5,12 +5,12 @@ import java.util.Date;
 /**
  * Created by romansky on 1/12/16.
  */
-public class NormalTweet extends Tweet implements Tweetable {
-    public NormalTweet(Date date, String message) {
+public class NormalTweet extends Tweet {
+    public NormalTweet(Date date, String message) throws TweetTooLongException {
         super(date, message);
     }
 
-    public NormalTweet(String message) {
+    public NormalTweet(String message) throws TweetTooLongException {
         super(message);
     }
 
