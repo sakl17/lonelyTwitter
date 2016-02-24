@@ -76,7 +76,7 @@ public class LonelyTwitterActivity extends Activity {
         // TODO: Replace with Elasticsearch
         ElasticsearchTweetController.GetTweetsTask getTweetsTask = new ElasticsearchTweetController.GetTweetsTask();
         try {
-            getTweetsTask.execute("senpai");
+            getTweetsTask.execute("");
             tweets = getTweetsTask.get();
         } catch (InterruptedException e) {
             e.printStackTrace();

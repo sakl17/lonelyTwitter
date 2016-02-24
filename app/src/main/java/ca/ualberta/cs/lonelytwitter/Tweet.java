@@ -55,15 +55,12 @@ public abstract class Tweet {
 
     @Override
     public String toString() {
-//        if(date == null) {
-//            if(message == null) {
-//                return "?";
-//            } else {
-//                return message;
-//            }
-//        } else {
-//
-//        }
+        if(date == null) {
+            date = new Date();
+        }
+        if(message == null) {
+
+        }
         return date.toString() + " | " + message;
     }
 }
