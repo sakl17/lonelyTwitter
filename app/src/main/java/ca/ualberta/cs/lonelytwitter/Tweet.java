@@ -59,7 +59,7 @@ public abstract class Tweet {
             date = new Date();
         }
         if(message == null) {
-
+            return date.toString();
         }
         return date.toString() + " | " + message;
     }
