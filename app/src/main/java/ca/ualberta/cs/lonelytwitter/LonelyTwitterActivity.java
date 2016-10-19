@@ -1,8 +1,11 @@
 package ca.ualberta.cs.lonelytwitter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,15 +27,21 @@ import java.util.ArrayList;
 
 public class LonelyTwitterActivity extends Activity {
 
+    private Activity activity = this;
+
     private static final String FILENAME = "file.sav";
     private EditText bodyText;
     private ListView oldTweetsList;
 
-    private ArrayList<Tweet> tweets = new ArrayList<Tweet>();
-    private ArrayAdapter<Tweet> adapter;
+    private ArrayList<NormalTweet> tweets = new ArrayList<NormalTweet>();
+    private ArrayAdapter<NormalTweet> adapter;
 
-    public ArrayAdapter<Tweet> getAdapter() {
+    public ArrayAdapter<NormalTweet> getAdapter() {
         return adapter;
+    }
+
+    public ListView getOldTweetsList(){
+        return oldTweetsList;
     }
 
     /**
@@ -45,21 +54,42 @@ public class LonelyTwitterActivity extends Activity {
 
         bodyText = (EditText) findViewById(R.id.body);
         Button saveButton = (Button) findViewById(R.id.save);
+        Button clearButton = (Button) findViewById(R.id.clear);
         oldTweetsList = (ListView) findViewById(R.id.oldTweetsList);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 String text = bodyText.getText().toString();
-                Tweet latestTweet = new NormalTweet(text);
+                NormalTweet latestTweet = new NormalTweet(text);
 
                 tweets.add(latestTweet);
                 adapter.notifyDataSetChanged();
 
                 // TODO: Replace with Elasticsearch
-                saveInFile();
-
+                //saveInFile();
+                ElasticsearchTweetController.AddTweetsTask addTweetsTask = new ElasticsearchTweetController.AddTweetsTask();
+                addTweetsTask.execute(latestTweet);
                 setResult(RESULT_OK);
+            }
+        });
+
+
+        clearButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v){
+                tweets.clear();
+                adapter.notifyDataSetChanged();
+                saveInFile();
+            }
+        });
+
+        oldTweetsList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                Intent intent = new Intent(activity, EditTweetActivity.class);
+                String editTweet = (tweets.get(position)).getMessage();
+                intent.putExtra("daTweet", editTweet);
+                startActivity(intent);
             }
         });
     }
@@ -70,10 +100,18 @@ public class LonelyTwitterActivity extends Activity {
 
         // Get latest tweets
         // TODO: Replace with Elasticsearch
-        loadFromFile();
+        //loadFromFile();
+        ElasticsearchTweetController.GetTweetsTask getTweetsTask = new ElasticsearchTweetController.GetTweetsTask();
+        getTweetsTask.execute("tweet");
 
+        try {
+            tweets = getTweetsTask.get();
+        }
+        catch (Exception e) {
+            Log.i("Error", "oh no");
+        }
         // Binds tweet list with view, so when our array updates, the view updates with it
-        adapter = new ArrayAdapter<Tweet>(this, R.layout.list_item, tweets);
+        adapter = new ArrayAdapter<NormalTweet>(this, R.layout.list_item, tweets);
         oldTweetsList.setAdapter(adapter);
     }
 
@@ -90,7 +128,7 @@ public class LonelyTwitterActivity extends Activity {
 
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
-            tweets = new ArrayList<Tweet>();
+            tweets = new ArrayList<NormalTweet>();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             throw new RuntimeException();
